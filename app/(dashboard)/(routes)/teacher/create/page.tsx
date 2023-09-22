@@ -20,9 +20,14 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
-  title: z.string().min(3, {
-    message: "Title is required and it must be at least 3 characters",
-  }),
+  title: z
+    .string()
+    .min(3, {
+      message: "Title is required and it must be at least 3 characters",
+    })
+    .max(50, {
+      message: "Title must be at less than 50 characters",
+    }),
 });
 
 const CreateCoursePage = () => {

@@ -14,36 +14,36 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { Course } from "@prisma/client";
 
-interface TitleFormProps {
-  initialData: {
-    title: string;
-  };
+interface DescriptionFormProps {
+  initialData: Course;
   courseId: string;
 }
 
 const formSchema = z.object({
-  title: z
+  description: z
     .string()
     .min(3, {
-      message: "Title is required and it must be at least 3 characters",
+      message: "Description is required and it must be at least 3 characters",
     })
     .max(50, {
-      message: "Title must be at less than 50 characters",
+      message: "Description must be at less than 50 characters",
     }),
 });
 
-const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
+const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: { description: initialData?.description || "" },
   });
 
   const { isSubmitting, isValid } = form.formState;
@@ -64,21 +64,28 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="flex justify-between items-center font-medium">
-        Course Title
+        Course Description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit title
+              Edit description
             </>
           )}
         </Button>
       </div>
       <div className="border-slate-300 border-2"></div>
       {!isEditing ? (
-        <p className="text-sm mt-2">{initialData.title}</p>
+        <p
+          className={cn(
+            "text-sm mt-2",
+            !initialData.description && "text-slate-500 italic"
+          )}
+        >
+          {initialData.description || "No description"}
+        </p>
       ) : (
         <>
           <Form {...form}>
@@ -88,13 +95,13 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
             >
               <FormField
                 control={form.control}
-                name="title"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input
+                      <Textarea
                         disabled={isSubmitting}
-                        placeholder="e.g. 'Advanced Web Development'"
+                        placeholder="This course is about..."
                         {...field}
                       />
                     </FormControl>
@@ -114,4 +121,4 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
     </div>
   );
 };
-export default TitleForm;
+export default DescriptionForm;
