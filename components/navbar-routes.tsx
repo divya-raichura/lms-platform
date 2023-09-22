@@ -13,7 +13,7 @@ const NavbarRoutes = () => {
   const isPlayerMode = pathname?.includes("/chapter");
 
   return (
-    <div className="flex gap-x-2 ml-auto">
+    <div className="flex gap-x-4 ml-auto items-center">
       {isTeacherMode || isPlayerMode ? (
         <Link href="/">
           <Button size="sm" variant="outline">
