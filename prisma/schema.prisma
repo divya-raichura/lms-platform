@@ -16,18 +16,23 @@ datasource db {
 // course is saved as draft, it can be published only when these details are known
 // so it will be unpublished but saved as a draft 
 model Course {
-  id          String       @id @default(uuid()) @db.Text
+  id          String  @id @default(uuid()) @db.Text
   userId      String
-  title       String       @db.Text
-  description String?      @db.Text
-  imageUrl    String?      @db.Text
+  title       String  @db.Text
+  description String? @db.Text
+  imageUrl    String? @db.Text
   price       Float?
-  isPublished Boolean      @default(false)
-  categoryId  String?
+  isPublished Boolean @default(false)
+
+  categoryId String?
+  Category   Category? @relation(fields: [categoryId], references: [id])
+
   attachments Attachment[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Category    Category?    @relation(fields: [categoryId], references: [id])
+  chapters    Chapter[]
+  purchases   Purchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([categoryId])
 }
@@ -48,4 +53,73 @@ model Attachment {
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
+}
+
+model Chapter {
+  id          String  @id @default(uuid()) @db.Text
+  title       String
+  description String? @db.Text
+  videoUrl    String? @db.Text
+  position    Int
+  isPublished Boolean @default(false)
+  isFree      Boolean @default(false)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  muxData MuxData?
+
+  userProgress UserProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model MuxData {
+  id         String  @id @default(uuid())
+  assetId    String
+  playbackId String?
+
+  chapterID String  @unique
+  chapter   Chapter @relation(fields: [chapterID], references: [id], onDelete: Cascade)
+}
+
+model UserProgress {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  isCompleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, chapterId])
+  @@index([chapterId])
+}
+
+model Purchase {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model StripeCustomer {
+  id               String @id @default(uuid())
+  userId           String @unique
+  stripeCustomerId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
