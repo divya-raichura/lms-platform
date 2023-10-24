@@ -1,12 +1,8 @@
 "use client";
 
-import * as z from "zod";
-import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Editor } from "@/components/editor";
+import { Preview } from "@/components/preview";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -14,35 +10,46 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
-import { Course } from "@prisma/client";
-import { Combobox } from "@/components/ui/combobox";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Chapter } from "@prisma/client";
+import axios from "axios";
+import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as z from "zod";
 
-interface CategoryFormProps {
-  initialData: Course;
+interface ChapterDescriptionFormProps {
+  initialData: Chapter;
   courseId: string;
-  options: { label: string; value: string }[];
+  chapterId: string;
 }
 
 const formSchema = z.object({
-  categoryId: z.string().min(1),
+  description: z
+    .string()
+    .min(3, {
+      message: "Description is required and it must be at least 3 characters",
+    })
+    .max(300, {
+      message: "Description must be at less than 300 characters",
+    }),
 });
 
-const CategoryForm = ({
+const ChapterDescriptionForm = ({
   initialData,
-  options,
   courseId,
-}: CategoryFormProps) => {
+  chapterId,
+}: ChapterDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { categoryId: initialData?.categoryId || "" },
+    defaultValues: { description: initialData?.description || "" },
   });
 
   const { isSubmitting, isValid } = form.formState;
@@ -51,8 +58,11 @@ const CategoryForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/courses/${courseId}`, values);
-      toast.success("Course updated");
+      await axios.patch(
+        `/api/courses/${courseId}/chapters/${chapterId}`,
+        values
+      );
+      toast.success("Chapter updated");
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -60,35 +70,34 @@ const CategoryForm = ({
     }
   };
 
-  const selectedOption = options.find(
-    (option) => option.value === initialData.categoryId
-  );
-
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="flex justify-between items-center font-medium">
-        Course category
+        Chapter Description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit category
+              Edit description
             </>
           )}
         </Button>
       </div>
       <div className="border-slate-200 border-b-2"></div>
       {!isEditing ? (
-        <p
+        <div
           className={cn(
             "text-sm mt-2",
-            !initialData.categoryId && "text-slate-500 italic"
+            !initialData.description && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No category selected"}
-        </p>
+          {!initialData.description && "No description"}
+          {initialData.description && (
+            <Preview value={initialData.description} />
+          )}
+        </div>
       ) : (
         <>
           <Form {...form}>
@@ -98,11 +107,11 @@ const CategoryForm = ({
             >
               <FormField
                 control={form.control}
-                name="categoryId"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Combobox options={...options} {...field} />
+                      <Editor {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,4 +129,4 @@ const CategoryForm = ({
     </div>
   );
 };
-export default CategoryForm;
+export default ChapterDescriptionForm;

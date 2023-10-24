@@ -70,7 +70,7 @@ const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
           )}
         </Button>
       </div>
-      <div className="border-slate-300 border-2"></div>
+      <div className="border-slate-200 border-b-2"></div>
       {!isEditing ? (
         <p
           className={cn(

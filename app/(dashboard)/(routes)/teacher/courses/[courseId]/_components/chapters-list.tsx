@@ -39,9 +39,10 @@ const ChaptersList = ({ items, onEdit, onReorder }: ChaptersListProps) => {
   }, [items]);
 
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+    if (!result.destination || result.source.index === result.destination.index)
+      return;
 
-    const items = Array.from(chapters);
+    const items = Array.from(chapters); // copy of the chapters arr to avoid modifying og data directly
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 

@@ -97,7 +97,7 @@ const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
           )}
         </Button>
       </div>
-      <div className="border-slate-300 border-2"></div>
+      <div className="border-slate-200 border-b-2"></div>
       {isCreating && (
         <>
           <Form {...form}>

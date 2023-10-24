@@ -67,7 +67,7 @@ const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
           )}
         </Button>
       </div>
-      <div className="border-slate-300 border-2"></div>
+      <div className="border-slate-200 border-b-2"></div>
       {!isEditing &&
         (!initialData.imageUrl ? (
           <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md mt-4">

@@ -65,6 +65,7 @@ const AttachmentForm = ({ initialData, courseId }: AttachmentFormProps) => {
           )}
         </Button>
       </div>
+      <div className="border-slate-200 border-b-2"></div>
       {!isEditing && (
         <>
           {initialData.attachments.length === 0 && (
